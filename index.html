@@ -118,6 +118,8 @@ a{color:var(--link)}
 .navitem__icon{width:18px; text-align:center; opacity:.9}
 .sidebar__foot{margin-top:auto; padding:12px 10px; font-size:11px; color:#9BAAC2; line-height:1.5}
 .sidebar__foot a{color:#8FB8E8}
+.visitor-counter{margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.15); font-size:11px; color:#C7D2E3}
+.visitor-counter b{color:#fff; font-weight:700}
 
 main{padding:22px 26px 60px; max-width:1320px}
 
@@ -465,6 +467,7 @@ const L = {
   citycorp: ['City Corporation', 'সিটি কর্পোরেশন'],
   national: ['National', 'জাতীয়'],
   source_note: ['Source: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">Community Series, Bangladesh Population &amp; Housing Census 2022</a>.', 'তথ্যসূত্র: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">বাংলাদেশ জনশুমারি ও গৃহগণনা ২০২২, কমিউনিটি সিরিজ</a>।'],
+  dashboard_views: ['dashboard views', 'ড্যাশবোর্ড ভিজিট'],
   c018_caveat: ['"Children 0–18" is an estimated figure, not a direct census tabulation.', '"০–১৮ বছর বয়সী শিশু" একটি আনুমানিক সংখ্যা, প্রত্যক্ষ শুমারি উপাত্ত নয়।'],
   boundary_caveat: ['Upazila/Thana boundaries are reconciled from a 2017 boundary file; some newer city-corporation thanas are shown at the district level because no polygon exists for them yet.', 'উপজেলা/থানা সীমানা ২০১৭ সালের একটি সীমানা ফাইল থেকে মিলানো হয়েছে; কিছু নতুন থানা এখনো এই মানচিত্রে যুক্ত হয়নি এবং জেলা পর্যায়ে দেখানো হচ্ছে।'],
   all: ['All', 'সব'],
@@ -2863,7 +2866,10 @@ function render(){
   root.querySelector('.sidebar').innerHTML = NAV_ITEMS.map(n=>`
     <div class="navitem ${active===n.view?'active':''}" data-view="${n.view}">
       <span class="navitem__icon">${n.icon}</span><span>${t(n.label)}</span>
-    </div>`).join('') + `<div class="sidebar__foot">${t('source_note')}</div>`;
+    </div>`).join('') + `<div class="sidebar__foot">${t('source_note')}
+      <div class="visitor-counter" id="visitorCounterWrap" style="display:none">\u{1F441} <b id="visitorCount">\u2014</b> ${t('dashboard_views')}</div>
+    </div>`;
+  updateVisitorCounterDOM();
 
   root.querySelectorAll('.navitem').forEach(el=>{
     el.addEventListener('click', ()=> navigate({view: el.dataset.view, id:null}));
@@ -2960,10 +2966,42 @@ function wireTopbar(){
   });
 }
 
+/* ---------------------- visitor counter (GitHub Pages deployment only) ----------------------
+   Uses CounterAPI's open v1 endpoint (https://counterapi.dev) — a simple GET request, no
+   signup or API key required. Fetched exactly once per page load (not on every in-app
+   navigation, which uses the same render() function but must not re-count a visit each time).
+   If the third-party service is unreachable (offline use, the service being down, a network
+   policy blocking it, etc.) the counter is simply hidden — it never blocks or breaks the rest
+   of the dashboard, which must keep working fully offline regardless of this feature. */
+let VISITOR_COUNT = null; // null = not yet resolved, false = unavailable, number = loaded
+function updateVisitorCounterDOM(){
+  const wrap = document.getElementById('visitorCounterWrap');
+  if (!wrap) return;
+  if (typeof VISITOR_COUNT === 'number'){
+    const span = document.getElementById('visitorCount');
+    if (span) span.textContent = fmt(VISITOR_COUNT);
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+async function initVisitorCounter(){
+  try {
+    const res = await fetch('https://api.counterapi.dev/v1/unicef-bd-census-2022/dashboard-views/up');
+    if (!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    VISITOR_COUNT = (data && typeof data.count === 'number') ? data.count : false;
+  } catch (err){
+    VISITOR_COUNT = false;
+  }
+  updateVisitorCounterDOM();
+}
+
 /* ================= INIT ================= */
 wireTopbar();
 wireExportButtons();
 render();
+initVisitorCounter();
 
 
 </script>
