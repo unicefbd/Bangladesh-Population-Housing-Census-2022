@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -162,6 +162,10 @@ h1.pagetitle{font-family:var(--serif); font-size:26px; font-weight:700; margin:0
   font-size:9.5px; font-weight:700; fill:var(--ink); pointer-events:none;
   paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round;
 }
+.maplabel-value{
+  font-size:6.5px; font-weight:600; fill:var(--ink-soft); pointer-events:none;
+  paint-order:stroke; stroke:#fff; stroke-width:2.5px; stroke-linejoin:round;
+}
 .checkbox-pill{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); font-weight:600; padding:5px 10px}
 .checkbox-pill input{cursor:pointer}
 .scrollbox{max-height:280px; overflow-y:auto; padding-right:6px}
@@ -304,13 +308,6 @@ html, body{overflow-x:hidden}
 
 
 </style>
-
-<!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:ga975397408f43e4b84ec8e5a598e523 msdt:dt="string">Bangladesh-5070|4f4ea5ab-81f0-4c7b-8ce6-c419f7985349</mso:ga975397408f43e4b84ec8e5a598e523>
-<mso:TaxCatchAll msdt:dt="string">3;#Bangladesh-5070</mso:TaxCatchAll>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
 </head>
 <body>
 <div id="tooltip" class="tooltip" style="display:none"></div>
@@ -492,6 +489,7 @@ const L = {
   lower_is_better: ['\u25BC Lower = better', '\u25BC কম = ভালো'],
   redgreen_caveat: ['Map colours run red (worse) to green (better) per each indicator\u2019s own methodology \u2014 note the direction can flip between indicators, and red\u2013green colour is hard to distinguish for colour-blind readers, so exact values are always available on hover, in the table below, and in the CSV export.', 'মানচিত্রের রঙ প্রতিটি সূচকের নিজস্ব পদ্ধতি অনুযায়ী লাল (খারাপ) থেকে সবুজ (ভালো) পর্যন্ত পরিবর্তিত হয় \u2014 নির্দেশনা সূচকভেদে ভিন্ন হতে পারে, এবং বর্ণান্ধ পাঠকদের জন্য লাল-সবুজ পার্থক্য করা কঠিন হতে পারে, তাই সঠিক মান সবসময় হোভার, নিচের সারণি এবং সিএসভি এক্সপোর্টে পাওয়া যায়।'],
   labels_prefix: ['Labels', 'লেবেল'],
+  values_prefix: ['Data label', 'তথ্য লেবেল'],
   on: ['On', 'চালু'],
   off: ['Off', 'বন্ধ'],
   level_division: ['Division', 'বিভাগ'],
@@ -565,6 +563,7 @@ const STATE = {
   divListLevel: 'division', // 'division' | 'district' — Division list map
   distListLevel: 'district', // 'district' | 'division' — District list map
   mapLabels: false,
+  mapLabelValues: false, // show the data value under the name label (only meaningful when mapLabels is on)
   sdgMetric: 'Mobile_Phone_Ownership',
   eduMetric: 'lit7',
   digitalMetric: 'mobile15',
@@ -707,8 +706,14 @@ function localProject(feats, w, h){
     return [x,y];
   };
 }
+function getCentroidForFeature(level, f){
+  if (level==='division') return DIVISION_CENTROIDS.get(f.id);
+  if (level==='district') return DISTRICT_CENTROIDS.get(f.id);
+  if (level==='upazila') return UPAZILA_CENTROIDS.get(f.__idx);
+  return null;
+}
 function buildMap(level, opts){
-  const {getRecordForFeature, metric='pop', activeId=null, featureFilter, labels, matchStroke, metricDefs=METRIC_DEFS} = opts;
+  const {getRecordForFeature, metric='pop', activeId=null, featureFilter, showLabels, showValueLabels, matchStroke, metricDefs=METRIC_DEFS} = opts;
   let feats = level==='division' ? GEO_DATA.divisions : (level==='district' ? GEO_DATA.districts : GEO_DATA.upazilas);
   if (featureFilter) feats = feats.filter(featureFilter);
   if (featureFilter && feats.length===0){
@@ -729,6 +734,8 @@ function buildMap(level, opts){
   const ringPath = ring => ring.map((pt,i)=> (i===0?'M':'L') + proj(pt[0],pt[1]).join(',')).join(' ') + 'Z';
 
   let shapes = '';
+  let labelSvg = '';
+  const labeledKeys = new Set(); // avoid repeating the same label when multiple features share one record (e.g. Overview's district shapes coloured by parent division)
   for (const f of feats){
     const rec = getRecordForFeature(f);
     const fill = rec ? colorScale(metricDef.get(rec), min, max, colors, reverse) : '#E3E0D3';
@@ -742,13 +749,17 @@ function buildMap(level, opts){
     const strokeAttr = (matchStroke && !isActive) ? ` style="stroke:${fill}"` : '';
     shapes += `<path class="geo-shape${isActive?' is-active':''}" d="${f.rings.map(ringPath).join(' ')}" fill="${fill}"${strokeAttr}
       data-id="${id}" data-name="${escAttr(name)}" data-val="${rec?fmtFn(metricDef.get(rec)):''}"></path>`;
-  }
-  let labelSvg = '';
-  if (labels && labels.length){
-    labelSvg = labels.map(l=>{
-      const [x,y] = proj(l.lon, l.lat);
-      return `<text class="maplabel" x="${x}" y="${y}" text-anchor="middle">${escAttr(l.text)}</text>`;
-    }).join('');
+    if (showLabels && rec && !labeledKeys.has(rec.__key)){
+      labeledKeys.add(rec.__key);
+      const c = getCentroidForFeature(level, f);
+      if (c){
+        const [x,y] = proj(c[0], c[1]);
+        labelSvg += `<text class="maplabel" x="${x}" y="${y}" text-anchor="middle">${escAttr(name)}</text>`;
+        if (showValueLabels){
+          labelSvg += `<text class="maplabel-value" x="${x}" y="${y+8}" text-anchor="middle">${escAttr(fmtFn(metricDef.get(rec)))}</text>`;
+        }
+      }
+    }
   }
   const svg = `<svg viewBox="0 0 ${MAP_W} ${MAP_H}" id="bdmap">${shapes}${labelSvg}</svg>`;
 
@@ -979,6 +990,7 @@ const MAP_EXPORT_STYLE = `
   .geo-shape{stroke:#fff; stroke-width:.6}
   .geo-shape.is-active{stroke:#E2231A; stroke-width:2}
   .maplabel{font-size:9.5px; font-weight:700; fill:#1A1A1A; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  .maplabel-value{font-size:6.5px; font-weight:600; fill:#4A4A4A; paint-order:stroke; stroke:#fff; stroke-width:2.5px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 `;
 
 /* Loading an SVG via a blob: URL into an Image() is unreliable when the page
@@ -1569,11 +1581,18 @@ function buildLabels(kind, filterFn){
 }
 function labelToggleHTML(){
   const on = STATE.mapLabels;
-  return `<div class="pill toggle-btn ${on?'active':''}" data-label-toggle="1" role="button" aria-pressed="${on}">${t('labels_prefix')}: ${on ? t('on') : t('off')}</div>`;
+  const showVal = STATE.mapLabelValues;
+  let html = `<div class="pill toggle-btn ${on?'active':''}" data-label-toggle="1" role="button" aria-pressed="${on}">${t('labels_prefix')}: ${on ? t('on') : t('off')}</div>`;
+  if (on){
+    html += `<div class="pill toggle-btn ${showVal?'active':''}" data-value-toggle="1" role="button" aria-pressed="${showVal}">${t('values_prefix')}: ${showVal ? t('on') : t('off')}</div>`;
+  }
+  return html;
 }
 function wireLabelToggle(container){
   const btn = container.querySelector('[data-label-toggle]');
   if (btn) btn.addEventListener('click', ()=>{ STATE.mapLabels = !STATE.mapLabels; render(); });
+  const vbtn = container.querySelector('[data-value-toggle]');
+  if (vbtn) vbtn.addEventListener('click', ()=>{ STATE.mapLabelValues = !STATE.mapLabelValues; render(); });
 }
 
 /* ================= VIEW: Overview ================= */
@@ -1585,9 +1604,7 @@ function renderOverview(){
   const divForDistrictFeature = f => { const d=IDX.distById.get(f.id); return d ? IDX.divById.get(d.divisionId) : null; };
   const getRecordForFeature = STATE.mapLevel==='division' ? divForDistrictFeature : distByIdForMap;
 
-  let labels = STATE.mapLevel==='division' ? buildLabels('division') : buildLabels('district');
-
-  const map = buildMap('district', { getRecordForFeature, metric: STATE.mapMetric, labels, matchStroke: STATE.mapLevel==='division' });
+  const map = buildMap('district', { getRecordForFeature, metric: STATE.mapMetric, showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues, matchStroke: STATE.mapLevel==='division' });
 
   return `
     <h1 class="pagetitle">${t('title')}</h1>
@@ -1682,11 +1699,11 @@ function renderDivisionList(){
   const map = STATE.divListLevel==='division' ? buildMap('division', {
     getRecordForFeature: f => IDX.divById.get(f.id),
     metric: STATE.mapMetric,
-    labels: buildLabels('division'),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   }) : buildMap('district', {
     getRecordForFeature: f => IDX.distById.get(f.id),
     metric: STATE.mapMetric,
-    labels: buildLabels('district'),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const metricDef = METRIC_DEFS[STATE.mapMetric];
   const chartRows = rows.map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
@@ -1764,7 +1781,7 @@ function renderDivisionDetail(id){
     getRecordForFeature: f => IDX.distById.get(f.id),
     metric: STATE.mapMetric,
     featureFilter: f => distIdSet.has(f.id),
-    labels: buildLabels('district', d=>distIdSet.has(d.id)),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
 
   return `
@@ -1824,8 +1841,8 @@ function renderDistrictList(){
   opts.rows = rows; opts.columns = cols; opts.id = 'tbl-distlist';
   opts.rerender = ()=>render();
   opts.onRowClick = key=>navigate({view:'district-detail', id:key});
-  const map = STATE.distListLevel==='district' ? buildMap('district', {getRecordForFeature:f=>IDX.distById.get(f.id), metric: STATE.mapMetric, labels: buildLabels('district')})
-    : buildMap('division', {getRecordForFeature:f=>IDX.divById.get(f.id), metric: STATE.mapMetric, labels: buildLabels('division')});
+  const map = STATE.distListLevel==='district' ? buildMap('district', {getRecordForFeature:f=>IDX.distById.get(f.id), metric: STATE.mapMetric, showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues})
+    : buildMap('division', {getRecordForFeature:f=>IDX.divById.get(f.id), metric: STATE.mapMetric, showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues});
   const metricDef = METRIC_DEFS[STATE.mapMetric];
   const chartRows = rows.map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
   return `
@@ -1897,7 +1914,7 @@ function renderDistrictDetail(id){
     getRecordForFeature: f => upzByGeoIdx.get(f.__idx) || null,
     metric: STATE.mapMetric,
     featureFilter: f => { const u = upzByGeoIdx.get(f.__idx); return u && upzIdSet.has(u.id); },
-    labels: buildLabels('upazila', u=>upzIdSet.has(u.id)),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
 
   const ccList = [...new Set(upzs.filter(u=>u.isCityCorp).map(u=>u.cityCorp))];
@@ -2045,7 +2062,7 @@ function renderCityCorpDetail(name){
     getRecordForFeature: f => upzByGeoIdx.get(f.__idx) || null,
     metric: STATE.mapMetric,
     featureFilter: f => { const u = upzByGeoIdx.get(f.__idx); return u && ccIdSet.has(u.id); },
-    labels: buildLabels('upazila', u=>ccIdSet.has(u.id)),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   return `
     ${crumbs([{label:t('nav_citycorp'), route:{view:'citycorp'}}, {label:dname(rec)}])}
@@ -2242,7 +2259,7 @@ function renderSDG(){
       return row ? (level==='division' ? withDivName(row) : withDistName(row)) : null;
     },
     metric: STATE.sdgMetric, metricDefs: SDG_METRIC_DEFS,
-    labels: buildLabels(level),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
 
@@ -2315,7 +2332,7 @@ function renderEducation(){
       return row ? (level==='division' ? withDivName(row) : withDistName(row)) : null;
     },
     metric: STATE.eduMetric, metricDefs: EDU_METRIC_DEFS,
-    labels: buildLabels(level),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
 
@@ -2403,7 +2420,7 @@ function renderDigital(){
       return row ? (level==='division' ? withDivName(row) : withDistName(row)) : null;
     },
     metric: STATE.digitalMetric, metricDefs: DIGITAL_METRIC_DEFS,
-    labels: buildLabels(level),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
 
@@ -2477,7 +2494,7 @@ function renderWash(){
       return row ? (level==='division' ? withDivName(row) : withDistName(row)) : null;
     },
     metric: STATE.washMetric, metricDefs: WASH_METRIC_DEFS,
-    labels: buildLabels(level),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
 
@@ -2605,7 +2622,7 @@ function renderEthnicity(){
       return row ? (level==='division' ? withDivName(row) : withDistName(row)) : null;
     },
     metric: STATE.ethMetric, metricDefs: ETH_METRIC_DEFS,
-    labels: buildLabels(level),
+    showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const topN = level==='division' ? 8 : 15;
   const chartRows = rows.filter(d=>d.Total_ethnic_pop_total>0).slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).slice(0,topN).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
