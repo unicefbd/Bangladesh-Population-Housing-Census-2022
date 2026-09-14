@@ -118,8 +118,6 @@ a{color:var(--link)}
 .navitem__icon{width:18px; text-align:center; opacity:.9}
 .sidebar__foot{margin-top:auto; padding:12px 10px; font-size:11px; color:#9BAAC2; line-height:1.5}
 .sidebar__foot a{color:#8FB8E8}
-.visitor-counter{margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.15); font-size:11px; color:#C7D2E3}
-.visitor-counter b{color:#fff; font-weight:700}
 
 main{padding:22px 26px 60px; max-width:1320px}
 
@@ -386,6 +384,49 @@ const L = {
   nav_about: ['About this Dashboard', 'এই ড্যাশবোর্ড সম্পর্কে'],
   about_subtitle: ['Data sources, coverage, and institutional roles', 'তথ্যসূত্র, কভারেজ এবং প্রাতিষ্ঠানিক ভূমিকা'],
   about_purpose_h: ['Purpose', 'উদ্দেশ্য'],
+  about_nav_h: ['How to navigate this dashboard', 'এই ড্যাশবোর্ডে চলাফেরা করার নির্দেশিকা'],
+  about_nav_geo_h: ['Browse by geography', 'ভৌগোলিক অবস্থান অনুযায়ী খুঁজুন'],
+  about_nav_geo_body: [
+    'Use the sidebar to move from a national overview down through Divisions, Districts, and City Corporations, or jump straight to any Union or Ward using the Union/Ward Explorer\u2019s search. Clicking any shaded area on a map, or any row in a table, opens that area\u2019s own detail page.',
+    'জাতীয় সারসংক্ষেপ থেকে শুরু করে বিভাগ, জেলা এবং সিটি কর্পোরেশন পর্যন্ত যেতে সাইডবার ব্যবহার করুন, অথবা ইউনিয়ন/ওয়ার্ড অনুসন্ধানকারীর সার্চ ব্যবহার করে সরাসরি যেকোনো ইউনিয়ন বা ওয়ার্ডে যান। মানচিত্রের যেকোনো রঙিন এলাকায় বা সারণির যেকোনো সারিতে ক্লিক করলে সেই এলাকার নিজস্ব বিস্তারিত পৃষ্ঠা খুলবে।'
+  ],
+  about_nav_theme_h: ['Browse by theme', 'বিষয়ভিত্তিক অনুসন্ধান করুন'],
+  about_nav_theme_body: [
+    'Six themed sections \u2014 SDG Snapshot, Education, Digital & Financial Inclusion, Water, Sanitation & Hygiene, Ethnicity, and Child & Age Demographics \u2014 sit alongside the geography sections in the sidebar and follow the same drill-down pattern for their own indicators.',
+    'ছয়টি বিষয়ভিত্তিক বিভাগ \u2014 এসডিজি সংক্ষিপ্তসার, শিক্ষা, ডিজিটাল ও আর্থিক অন্তর্ভুক্তি, পানি, স্যানিটেশন ও স্বাস্থ্যবিধি, জাতিসত্তা এবং বয়স কাঠামো ও শিশু জনসংখ্যা \u2014 সাইডবারে ভৌগোলিক বিভাগগুলোর পাশে রয়েছে এবং তাদের নিজস্ব সূচকের জন্য একই ধরনের বিস্তারিত অনুসন্ধান অনুসরণ করে।'
+  ],
+  about_nav_maps_h: ['Using the maps', 'মানচিত্র ব্যবহার'],
+  about_nav_maps_1: ['Switch what the map is coloured by using the pills above it (e.g. Total population, Literacy rate).', 'মানচিত্রের উপরের পিল ব্যবহার করে মানচিত্রটি কোন সূচক অনুযায়ী রঙিন হবে তা পরিবর্তন করুন (যেমন মোট জনসংখ্যা, সাক্ষরতার হার)।'],
+  about_nav_maps_2: ['On pages where it\u2019s available, switch between Division and District boundaries.', 'যেখানে উপলব্ধ, সেখানে বিভাগ ও জেলা সীমানার মধ্যে পরিবর্তন করুন।'],
+  about_nav_maps_3: ['Turn on name labels, and once they\u2019re on, turn on data-value labels too.', 'নাম লেবেল চালু করুন, এবং চালু করার পর তথ্য-মান লেবেলও চালু করতে পারেন।'],
+  about_nav_maps_4: ['Hover any area at any time to see its exact name and value, regardless of label settings.', 'লেবেল সেটিং নির্বিশেষে যেকোনো সময় এলাকার সঠিক নাম ও মান দেখতে যেকোনো এলাকার উপর মাউস রাখুন।'],
+  about_nav_maps_5: ['Click an area to open its own detail page.', 'কোনো এলাকার নিজস্ব বিস্তারিত পৃষ্ঠা খুলতে সেটিতে ক্লিক করুন।'],
+  about_nav_maps_6: ['Use the small download icon (top-right of the map) to save it as a PNG image.', 'মানচিত্রটি পিএনজি ছবি হিসেবে সংরক্ষণ করতে (মানচিত্রের উপরের-ডান কোণে) ছোট ডাউনলোড আইকন ব্যবহার করুন।'],
+  about_nav_tables_h: ['Using the tables', 'সারণি ব্যবহার'],
+  about_nav_tables_body: [
+    'Click a column header to sort by that column; click it again to reverse the order. Use the \u201cDownload CSV\u201d button on any table to save the complete underlying data as a spreadsheet file, including figures not always visible on screen.',
+    'কোনো কলামের শিরোনামে ক্লিক করে সেই কলাম অনুযায়ী সাজান; আবার ক্লিক করলে ক্রম উল্টে যাবে। যেকোনো সারণির \u201cDownload CSV\u201d বোতাম ব্যবহার করে সম্পূর্ণ অন্তর্নিহিত তথ্য স্প্রেডশিট ফাইল হিসেবে সংরক্ষণ করুন, যার মধ্যে পর্দায় সবসময় দৃশ্যমান নয় এমন সংখ্যাও অন্তর্ভুক্ত থাকে।'
+  ],
+  about_nav_search_h: ['Searching and filtering', 'অনুসন্ধান ও ফিল্টার'],
+  about_nav_search_body: [
+    'The Union/Ward Explorer lets you search by name, or filter by Division, District, Upazila/Thana, and area type, to find any of the 8,198 Unions/Wards directly.',
+    'ইউনিয়ন/ওয়ার্ড অনুসন্ধানকারী দিয়ে আপনি নাম দিয়ে খুঁজতে পারেন, অথবা বিভাগ, জেলা, উপজেলা/থানা এবং এলাকার ধরন দিয়ে ফিল্টার করতে পারেন, যাতে ৮,১৯৮টি ইউনিয়ন/ওয়ার্ডের যেকোনোটি সরাসরি খুঁজে পাওয়া যায়।'
+  ],
+  about_nav_compare_h: ['Comparing areas', 'এলাকা তুলনা করুন'],
+  about_nav_compare_body: [
+    'The Compare Areas tool lets you place up to 4 areas of any type \u2014 Divisions, Districts, Upazilas, City Corporations, or Unions/Wards \u2014 side by side for a direct comparison of their key figures.',
+    'তুলনা করুন টুল দিয়ে আপনি যেকোনো ধরনের সর্বোচ্চ ৪টি এলাকা \u2014 বিভাগ, জেলা, উপজেলা, সিটি কর্পোরেশন, বা ইউনিয়ন/ওয়ার্ড \u2014 পাশাপাশি রেখে তাদের প্রধান তথ্য সরাসরি তুলনা করতে পারেন।'
+  ],
+  about_nav_lang_h: ['Switching language', 'ভাষা পরিবর্তন'],
+  about_nav_lang_body: [
+    'Use the EN / \u09ac\u09be\u0982\u09b2\u09be toggle in the top bar to switch the entire dashboard \u2014 including numerals and place names \u2014 between English and Bangla.',
+    'টপবারে EN / বাংলা টগল ব্যবহার করে সম্পূর্ণ ড্যাশবোর্ড \u2014 সংখ্যা ও স্থানের নামসহ \u2014 ইংরেজি ও বাংলার মধ্যে পরিবর্তন করুন।'
+  ],
+  about_nav_mobile_h: ['On mobile', 'মোবাইলে'],
+  about_nav_mobile_body: [
+    'Every feature works on a phone or tablet; the sidebar becomes a horizontally-scrolling strip across the top of the screen.',
+    'ফোন বা ট্যাবলেটে প্রতিটি বৈশিষ্ট্য কাজ করে; সাইডবারটি পর্দার উপরে একটি অনুভূমিকভাবে স্ক্রলযোগ্য স্ট্রিপে পরিণত হয়।'
+  ],
   about_purpose_body: [
     'This dashboard brings together population, education, digital and financial inclusion, water and sanitation, and ethnicity data from the Bangladesh Population & Housing Census 2022 into a single, interactive tool. It is designed for UNICEF, Government of Bangladesh, NGO, and UN audiences to support evidence-based planning and targeting \u2014 from a national overview down to individual Unions and Wards.',
     'এই ড্যাশবোর্ডে বাংলাদেশ জনশুমারি ও গৃহগণনা ২০২২ থেকে জনসংখ্যা, শিক্ষা, ডিজিটাল ও আর্থিক অন্তর্ভুক্তি, পানি ও স্যানিটেশন এবং জাতিসত্তা সংক্রান্ত তথ্য একটি একক, ইন্টারঅ্যাক্টিভ টুলে একত্রিত করা হয়েছে। এটি ইউনিসেফ, বাংলাদেশ সরকার, এনজিও এবং জাতিসংঘ সংস্থার ব্যবহারকারীদের জন্য তৈরি, যাতে জাতীয় পর্যায় থেকে শুরু করে পৃথক ইউনিয়ন ও ওয়ার্ড পর্যন্ত প্রমাণ-ভিত্তিক পরিকল্পনা ও টার্গেটিং করা যায়।'
@@ -467,7 +508,6 @@ const L = {
   citycorp: ['City Corporation', 'সিটি কর্পোরেশন'],
   national: ['National', 'জাতীয়'],
   source_note: ['Source: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">Community Series, Bangladesh Population &amp; Housing Census 2022</a>.', 'তথ্যসূত্র: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">বাংলাদেশ জনশুমারি ও গৃহগণনা ২০২২, কমিউনিটি সিরিজ</a>।'],
-  dashboard_views: ['dashboard views', 'ড্যাশবোর্ড ভিজিট'],
   c018_caveat: ['"Children 0–18" is an estimated figure, not a direct census tabulation.', '"০–১৮ বছর বয়সী শিশু" একটি আনুমানিক সংখ্যা, প্রত্যক্ষ শুমারি উপাত্ত নয়।'],
   boundary_caveat: ['Upazila/Thana boundaries are reconciled from a 2017 boundary file; some newer city-corporation thanas are shown at the district level because no polygon exists for them yet.', 'উপজেলা/থানা সীমানা ২০১৭ সালের একটি সীমানা ফাইল থেকে মিলানো হয়েছে; কিছু নতুন থানা এখনো এই মানচিত্রে যুক্ত হয়নি এবং জেলা পর্যায়ে দেখানো হচ্ছে।'],
   all: ['All', 'সব'],
@@ -2701,6 +2741,40 @@ function renderAbout(){
     </div>
 
     <div class="card section-gap">
+      <h2>${t('about_nav_h')}</h2>
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_geo_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_geo_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_theme_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_theme_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_maps_h')}</h3>
+      <ul style="margin:0 0 16px; padding-left:20px; line-height:1.8">
+        <li>${t('about_nav_maps_1')}</li>
+        <li>${t('about_nav_maps_2')}</li>
+        <li>${t('about_nav_maps_3')}</li>
+        <li>${t('about_nav_maps_4')}</li>
+        <li>${t('about_nav_maps_5')}</li>
+        <li>${t('about_nav_maps_6')}</li>
+      </ul>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_tables_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_tables_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_search_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_search_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_compare_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_compare_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_lang_h')}</h3>
+      <p style="margin:0 0 16px; line-height:1.7">${t('about_nav_lang_body')}</p>
+
+      <h3 style="font-family:var(--serif); font-size:14px; color:#000; margin:0 0 6px">${t('about_nav_mobile_h')}</h3>
+      <p style="margin:0; line-height:1.7">${t('about_nav_mobile_body')}</p>
+    </div>
+
+    <div class="card section-gap">
       <h2>${t('about_sources_h')}</h2>
       <ul style="margin:0; padding-left:20px; line-height:1.8">
         <li>${t('about_source_1')}</li>
@@ -2866,10 +2940,7 @@ function render(){
   root.querySelector('.sidebar').innerHTML = NAV_ITEMS.map(n=>`
     <div class="navitem ${active===n.view?'active':''}" data-view="${n.view}">
       <span class="navitem__icon">${n.icon}</span><span>${t(n.label)}</span>
-    </div>`).join('') + `<div class="sidebar__foot">${t('source_note')}
-      <div class="visitor-counter" id="visitorCounterWrap" style="display:none">\u{1F441} <b id="visitorCount">\u2014</b> ${t('dashboard_views')}</div>
-    </div>`;
-  updateVisitorCounterDOM();
+    </div>`).join('') + `<div class="sidebar__foot">${t('source_note')}</div>`;
 
   root.querySelectorAll('.navitem').forEach(el=>{
     el.addEventListener('click', ()=> navigate({view: el.dataset.view, id:null}));
@@ -2966,42 +3037,10 @@ function wireTopbar(){
   });
 }
 
-/* ---------------------- visitor counter (GitHub Pages deployment only) ----------------------
-   Uses CounterAPI's open v1 endpoint (https://counterapi.dev) — a simple GET request, no
-   signup or API key required. Fetched exactly once per page load (not on every in-app
-   navigation, which uses the same render() function but must not re-count a visit each time).
-   If the third-party service is unreachable (offline use, the service being down, a network
-   policy blocking it, etc.) the counter is simply hidden — it never blocks or breaks the rest
-   of the dashboard, which must keep working fully offline regardless of this feature. */
-let VISITOR_COUNT = null; // null = not yet resolved, false = unavailable, number = loaded
-function updateVisitorCounterDOM(){
-  const wrap = document.getElementById('visitorCounterWrap');
-  if (!wrap) return;
-  if (typeof VISITOR_COUNT === 'number'){
-    const span = document.getElementById('visitorCount');
-    if (span) span.textContent = fmt(VISITOR_COUNT);
-    wrap.style.display = '';
-  } else {
-    wrap.style.display = 'none';
-  }
-}
-async function initVisitorCounter(){
-  try {
-    const res = await fetch('https://api.counterapi.dev/v1/unicef-bd-census-2022/dashboard-views/up');
-    if (!res.ok) throw new Error('bad response');
-    const data = await res.json();
-    VISITOR_COUNT = (data && typeof data.count === 'number') ? data.count : false;
-  } catch (err){
-    VISITOR_COUNT = false;
-  }
-  updateVisitorCounterDOM();
-}
-
 /* ================= INIT ================= */
 wireTopbar();
 wireExportButtons();
 render();
-initVisitorCounter();
 
 
 </script>
