@@ -172,11 +172,11 @@ h1.pagetitle{font-family:var(--serif); font-size:26px; font-weight:700; margin:0
 .geo-shape.is-active{stroke:var(--clay); stroke-width:2}
 .maplabel{
   font-size:9.5px; font-weight:700; fill:var(--ink); pointer-events:none;
-  paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round;
+  paint-order:stroke; stroke:#fff; stroke-width:3.5px; stroke-linejoin:round;
 }
 .maplabel-value{
-  font-size:6.5px; font-weight:600; fill:var(--ink-soft); pointer-events:none;
-  paint-order:stroke; stroke:#fff; stroke-width:2.5px; stroke-linejoin:round;
+  font-size:6.5px; font-weight:700; fill:var(--ink-soft); pointer-events:none;
+  paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round;
 }
 .checkbox-pill{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); font-weight:600; padding:5px 10px}
 .checkbox-pill input{cursor:pointer}
@@ -189,10 +189,11 @@ h1.pagetitle{font-family:var(--serif); font-size:26px; font-weight:700; margin:0
 .export-wrap{position:relative}
 .export-png-btn{
   position:absolute; top:0; right:0; z-index:5;
-  width:26px; height:26px; border-radius:6px; border:1px solid var(--line);
-  background:#fff; color:var(--ink-soft); display:flex; align-items:center; justify-content:center;
-  cursor:pointer; opacity:.55; transition:opacity .12s, color .12s;
+  height:26px; padding:0 10px 0 8px; border-radius:6px; border:1px solid var(--line);
+  background:#fff; color:var(--ink-soft); display:flex; align-items:center; justify-content:center; gap:5px;
+  cursor:pointer; opacity:.7; transition:opacity .12s, color .12s;
 }
+.export-png-btn__label{font-size:11px; font-weight:600; white-space:nowrap}
 .export-wrap:hover .export-png-btn{opacity:1}
 .export-png-btn:hover{color:var(--teal-800); border-color:var(--teal-800)}
 .export-png-btn:disabled{opacity:.3; cursor:wait}
@@ -257,6 +258,17 @@ td.num, th.num{text-align:right; font-variant-numeric:tabular-nums}
 .barchart .track{flex:1; background:var(--line-soft); border-radius:4px; height:16px; position:relative; overflow:hidden}
 .barchart .fill{height:100%; background:var(--teal-700); border-radius:4px}
 .barchart .val{width:78px; flex:none; font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.track--stacked{display:flex}
+.track--stacked .fill{border-radius:0}
+.track--stacked .fill--m{background:var(--teal-700)}
+.track--stacked .fill--f{background:var(--gold)}
+.row--grouped{align-items:flex-start}
+.grouped-bars{flex:1; display:flex; flex-direction:column; gap:3px}
+.grouped-bar-row{display:flex; align-items:center; gap:8px}
+.grouped-bar-row .track{flex:1; background:var(--line-soft); border-radius:4px; height:12px; position:relative; overflow:hidden}
+.grouped-bar-row .fill--m{height:100%; background:var(--teal-700); border-radius:4px}
+.grouped-bar-row .fill--f{height:100%; background:var(--gold); border-radius:4px}
+.grouped-bar-row .val{width:60px; flex:none; font-size:11px; color:var(--ink-soft); font-variant-numeric:tabular-nums}
 
 .pyramid{display:flex; gap:0}
 .pyramid .side{flex:1; display:flex; flex-direction:column-reverse; gap:2px}
@@ -275,6 +287,10 @@ td.num, th.num{text-align:right; font-variant-numeric:tabular-nums}
 .badge-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
 .badge{background:var(--teal-100); color:var(--teal-800); border-radius:20px; padding:4px 11px; font-size:11.5px; font-weight:700}
 .badge--custom{background:var(--gold-soft); color:#8a4a10}
+.badge--m{background:var(--teal-100); color:var(--ink)}
+.badge--m::before{content:'●'; margin-right:4px; color:var(--teal-700)}
+.badge--f{background:var(--gold-soft); color:var(--ink)}
+.badge--f::before{content:'●'; margin-right:4px; color:var(--gold)}
 .age-group-picker{border-top:1px solid #eee; padding-top:12px}
 .age-group-picker__label{font-size:11.5px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px}
 .pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
@@ -545,6 +561,8 @@ const L = {
   metric: ['Shade map by', 'মানচিত্র রঙ নির্ধারণ'],
   export_csv: ['Click to download data', 'তথ্য ডাউনলোড করতে ক্লিক করুন'],
   export_png: ['Export as PNG', 'পিএনজি হিসেবে সংরক্ষণ করুন'],
+  export_map: ['Export map', 'মানচিত্র রপ্তানি করুন'],
+  export_chart: ['Export chart', 'চার্ট রপ্তানি করুন'],
   add_compare: ['Add to compare', 'তুলনায় যোগ করুন'],
   compare_title: ['Compare up to 4 areas side by side', 'একসাথে ৪টি পর্যন্ত এলাকা তুলনা করুন'],
   compare_empty: ['Search and add an area to start comparing', 'তুলনা শুরু করতে একটি এলাকা যোগ করুন'],
@@ -559,7 +577,9 @@ const L = {
   paurashava: ['Paurashava (municipality)', 'পৌরসভা'],
   citycorp: ['City Corporation', 'সিটি কর্পোরেশন'],
   national: ['National', 'জাতীয়'],
-  source_note: ['Data source: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">Community Series, Bangladesh Population &amp; Housing Census 2022</a>, Bangladesh Bureau of Statistics (BBS), the People\'s Republic of Bangladesh.', 'তথ্যসূত্র: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">বাংলাদেশ জনশুমারি ও গৃহগণনা ২০২২, কমিউনিটি সিরিজ</a>, বাংলাদেশ পরিসংখ্যান ব্যুরো (বিবিএস), গণপ্রজাতন্ত্রী বাংলাদেশ সরকার।'],
+  notes_label: ['Notes', 'মন্তব্য'],
+  gender_estimated_note: ['estimated from the area\'s overall sex ratio, not directly tabulated by sex in the source', 'এলাকার সামগ্রিক লিঙ্গ অনুপাত থেকে আনুমানিক করা হয়েছে, উৎসে সরাসরি লিঙ্গ অনুযায়ী গণনা করা হয়নি'],
+  source_note: ['Data source: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">Community Series, Bangladesh Population &amp; Housing Census 2022</a>, Bangladesh Bureau of Statistics (BBS), Statistics and Informatics Division (SID), Ministry of Planning, Government of the People\'s Republic of Bangladesh.', 'তথ্যসূত্র: <a href="https://bbs.gov.bd/pages/static-pages/6922e073933eb65569e27220" target="_blank" rel="noopener">বাংলাদেশ জনশুমারি ও গৃহগণনা ২০২২, কমিউনিটি সিরিজ</a>, বাংলাদেশ পরিসংখ্যান ব্যুরো (বিবিএস), পরিসংখ্যান ও তথ্য ব্যবস্থাপনা বিভাগ (এসআইডি), পরিকল্পনা মন্ত্রণালয়, গণপ্রজাতন্ত্রী বাংলাদেশ সরকার।'],
   pmr_footer: ['Developed and maintained by Planning, Monitoring &amp; Reporting (PMR) Section, UNICEF Bangladesh', 'পরিকল্পনা, পর্যবেক্ষণ ও প্রতিবেদন (পিএমআর) বিভাগ, ইউনিসেফ বাংলাদেশ কর্তৃক তৈরি ও রক্ষণাবেক্ষণ করা হয়েছে'],
   c018_caveat: ['"Children 0–18" is an estimated figure, not a direct census tabulation.', '"০–১৮ বছর বয়সী শিশু" একটি আনুমানিক সংখ্যা, প্রত্যক্ষ শুমারি উপাত্ত নয়।'],
   c517_caveat: ['"Children 0–17" is estimated as the full 0–4, 5–9, and 10–14 census age bands plus a uniform-distribution approximation of 3/5 of the 15–19 band (covering ages 15–17 of that band).', '"০–১৭ বছর বয়সী শিশু" পুরো ০–৪, ৫–৯ এবং ১০–১৪ বছরের শুমারি বয়সসীমার সাথে ১৫–১৯ বছরের বয়সসীমার ৩/৫ অংশের (যা ঐ সীমার ১৫–১৭ বছর বয়স নির্দেশ করে) একটি সুষম-বণ্টন আনুমানিক পদ্ধতি যোগ করে নির্ণয় করা হয়েছে।'],
@@ -784,9 +804,12 @@ function colorScale(value, min, max, colors, reverse){
 function fmtPct(v){ return (v===null||v===undefined||isNaN(v)) ? '—' : fmt1(v)+'%'; }
 
 const METRIC_DEFS = {
-  pop:      {label:['Total population','মোট জনসংখ্যা'], get:r=>r.pop, fmt:fmt},
-  c517:     {label:L.c517, get:r=>estimateC517(r), fmt:fmt},
-  u5:       {label:['0–4 years','০–৪ বছর'], get:r=>r.u5, fmt:fmt},
+  pop:      {label:['Total population','মোট জনসংখ্যা'], get:r=>r.pop, fmt:fmt,
+    getM:r=>r.male, getF:r=>r.female, genderKind:'count'}, // genuine — Pop_Male/Pop_Female are direct census columns
+  c517:     {label:L.c517, get:r=>estimateC517(r), fmt:fmt, genderKind:'count', estimated:true,
+    getM:r=>estimateC517(r)*(r.male/(r.male+r.female)), getF:r=>estimateC517(r)*(r.female/(r.male+r.female))},
+  u5:       {label:['0–4 years','০–৪ বছর'], get:r=>r.u5, fmt:fmt, genderKind:'count', estimated:true,
+    getM:r=>r.u5*(r.male/(r.male+r.female)), getF:r=>r.u5*(r.female/(r.male+r.female))},
   hh:       {label:['Households','খানা'], get:r=>r.hh, fmt:fmt},
   avgHH:    {label:['Avg. household size','গড় খানার আকার'], get:r=>r.avgHH, fmt:fmt1},
   sexRatio: {label:['Sex ratio','লিঙ্গ অনুপাত'], get:r=>r.sexRatio, fmt:fmt1},
@@ -839,7 +862,7 @@ function buildMap(level, opts){
   const ringPath = ring => ring.map((pt,i)=> (i===0?'M':'L') + proj(pt[0],pt[1]).join(',')).join(' ') + 'Z';
 
   let shapes = '';
-  let labelSvg = '';
+  const labelCandidates = []; // collected first, then filtered for overlap before rendering as SVG
   const labeledKeys = new Set(); // avoid repeating the same label when multiple features share one record (e.g. Overview's district shapes coloured by parent division)
   for (const f of feats){
     const rec = getRecordForFeature(f);
@@ -858,12 +881,40 @@ function buildMap(level, opts){
       labeledKeys.add(rec.__key);
       const c = getCentroidForFeature(level, f);
       if (c){
-        const [x,y] = proj(c[0], c[1]);
-        labelSvg += `<text class="maplabel" x="${x}" y="${y}" text-anchor="middle">${escAttr(name)}</text>`;
-        if (showValueLabels){
-          labelSvg += `<text class="maplabel-value" x="${x}" y="${y+8}" text-anchor="middle">${escAttr(fmtFn(metricDef.get(rec)))}</text>`;
+        let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+        for (const ring of f.rings) for (const pt of ring){
+          const [px,py] = proj(pt[0], pt[1]);
+          if (px<minX) minX=px; if (px>maxX) maxX=px;
+          if (py<minY) minY=py; if (py>maxY) maxY=py;
+        }
+        const bw = maxX-minX, bh = maxY-minY;
+        const estTextW = name.length * 5.2;
+        if (bw >= Math.min(estTextW, 34) && bh >= 13){
+          const [x,y] = proj(c[0], c[1]);
+          const val = showValueLabels ? fmtFn(metricDef.get(rec)) : null;
+          const valW = val ? String(val).length * 3.8 : 0;
+          // shape area (bigger shapes win a collision — smaller/less prominent one is dropped)
+          labelCandidates.push({x, y, name, val, w: Math.max(estTextW, valW), area: bw*bh});
         }
       }
+    }
+  }
+  // Drop whichever label in a colliding pair has the smaller source shape, rather than letting
+  // both render as illegible overlapping text — this is what was making dense clusters of small,
+  // closely-packed areas (e.g. Dhaka/Narayanganj/Munshiganj) unreadable. Hovering still shows
+  // the name for any shape whose label was dropped this way.
+  labelCandidates.sort((a,b)=>b.area-a.area);
+  const placed = [];
+  for (const cand of labelCandidates){
+    const halfH = 9; // approx half-height of a name+value label pair in px
+    const collides = placed.some(p=>Math.abs(p.x-cand.x) < (p.w+cand.w)/2*0.75 && Math.abs(p.y-cand.y) < halfH*2.1);
+    if (!collides) placed.push(cand);
+  }
+  let labelSvg = '';
+  for (const p of placed){
+    labelSvg += `<text class="maplabel" x="${p.x}" y="${p.y}" text-anchor="middle">${escAttr(p.name)}</text>`;
+    if (p.val != null){
+      labelSvg += `<text class="maplabel-value" x="${p.x}" y="${p.y+8}" text-anchor="middle">${escAttr(p.val)}</text>`;
     }
   }
   const svg = `<svg viewBox="0 0 ${MAP_W} ${MAP_H}" id="bdmap">${shapes}${labelSvg}</svg>`;
@@ -912,6 +963,75 @@ function barChart(rows, opts){
       <div class="track"><div class="fill" style="width:${Math.max(2,100*r.value/max)}%"></div></div>
       <div class="val">${opts.formatter ? opts.formatter(r.value) : fmt(r.value)}</div>
     </div>`).join('') + `</div>`;
+}
+/* Grouped (side-by-side, not stacked) male/female comparison — for rate/percentage indicators,
+   where a single stacked bar would be meaningless (summing two percentages has no meaning the
+   way summing two headcounts does). Same blue/orange as the pyramid and the stacked variant. */
+function groupedGenderBarChart(rows, opts={}){
+  // rows: [{label, male, female}] — male/female are already-comparable values (e.g. rates)
+  const max = opts.max || Math.max(...rows.flatMap(r=>[r.male, r.female]), 1);
+  const fmtFn = opts.formatter || fmt;
+  const body = rows.map(r=>`
+    <div class="row row--grouped">
+      <div class="lbl" title="${escAttr(r.label)}">${escAttr(r.label)}</div>
+      <div class="grouped-bars">
+        <div class="grouped-bar-row">
+          <div class="track"><div class="fill fill--m" style="width:${Math.max(2,100*r.male/max)}%"></div></div>
+          <div class="val">${fmtFn(r.male)}</div>
+        </div>
+        <div class="grouped-bar-row">
+          <div class="track"><div class="fill fill--f" style="width:${Math.max(2,100*r.female/max)}%"></div></div>
+          <div class="val">${fmtFn(r.female)}</div>
+        </div>
+      </div>
+    </div>`).join('');
+  return `<div class="barchart">${body}</div>
+    <div class="badge-row" style="margin-top:8px">
+      <span class="badge badge--m">${t('male')}</span>
+      <span class="badge badge--f">${t('female')}</span>
+      ${opts.estimated?`<span class="footnote" style="margin:0">(${t('gender_estimated_note')})</span>`:''}
+    </div>`;
+}
+/* Stacked male/female ranked bar — same blue/orange as the age & sex pyramid, so a viewer
+   reads "male vs female" the same way everywhere in the dashboard. Only used where the source
+   genuinely tabulates a metric by sex; estimated splits (age bands, from area sex ratio) are
+   passed an `estimated:true` flag so the label makes that clear rather than implying it's
+   directly tabulated. */
+function genderBarChart(rows, opts={}){
+  // rows: [{label, male, female}]
+  const totals = rows.map(r=>r.male+r.female);
+  const max = opts.max || Math.max(...totals, 1);
+  const fmtFn = opts.formatter || fmt;
+  const body = rows.map(r=>{
+    const mW = Math.max(r.male>0?0.5:0, 100*r.male/max), fW = Math.max(r.female>0?0.5:0, 100*r.female/max);
+    return `
+    <div class="row">
+      <div class="lbl" title="${escAttr(r.label)}">${escAttr(r.label)}</div>
+      <div class="track track--stacked">
+        <div class="fill fill--m" style="width:${mW}%" title="${t('male')}: ${fmtFn(r.male)}"></div>
+        <div class="fill fill--f" style="width:${fW}%" title="${t('female')}: ${fmtFn(r.female)}"></div>
+      </div>
+      <div class="val">${fmtFn(r.male+r.female)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="badge-row" style="margin-bottom:8px">
+      <span class="badge badge--m">${t('male')}</span>
+      <span class="badge badge--f">${t('female')}</span>
+      ${opts.estimated?`<span class="footnote" style="margin:0">(${t('gender_estimated_note')})</span>`:''}
+    </div>
+    <div class="barchart">${body}</div>`;
+}
+/* Picks stacked / grouped / plain automatically based on what the metric supports — shared by
+   every theme page's ranked chart so each one doesn't have to repeat this decision. `rows` are
+   the underlying records (not pre-mapped to {label,value}) so male/female can be pulled from
+   whichever one is currently selected. */
+function themeRankedChartHTML(rows, nameFn, metricDef, opts={}){
+  if (metricDef.getM && metricDef.getF){
+    const chartRows = rows.map(r=>({label:nameFn(r), male:metricDef.getM(r), female:metricDef.getF(r)}));
+    const chartOpts = metricDef.estimated ? {...opts, estimated:true} : opts;
+    return genderBarChart(chartRows, chartOpts);
+  }
+  return barChart(rows.map(r=>({label:nameFn(r), value:metricDef.get(r)})), opts);
 }
 
 /* ---------------------- age pyramid ---------------------- */
@@ -1096,8 +1216,8 @@ function downloadBlob(blob, filename){
 const MAP_EXPORT_STYLE = `
   .geo-shape{stroke:#fff; stroke-width:.6}
   .geo-shape.is-active{stroke:#E2231A; stroke-width:2}
-  .maplabel{font-size:9.5px; font-weight:700; fill:#1A1A1A; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
-  .maplabel-value{font-size:6.5px; font-weight:600; fill:#4A4A4A; paint-order:stroke; stroke:#fff; stroke-width:2.5px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  .maplabel{font-size:9.5px; font-weight:700; fill:#1A1A1A; paint-order:stroke; stroke:#fff; stroke-width:3.5px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  .maplabel-value{font-size:6.5px; font-weight:700; fill:#4A4A4A; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 `;
 
 /* Loading an SVG via a blob: URL into an Image() is unreliable when the page
@@ -1382,9 +1502,11 @@ let __exportCounter = 0;
 function exportWrap(innerHtml, filenameBase, spec){
   const id = 'expwrap' + (__exportCounter++);
   window.__exportRegistry[id] = {spec, filename: filenameBase.replace(/\s+/g,'_')+'.png'};
+  const label = spec.type==='map' ? t('export_map') : t('export_chart');
   return `<div class="export-wrap" id="${id}">
-    <button class="export-png-btn" data-export-id="${id}" title="${t('export_png')}" aria-label="${t('export_png')}">
+    <button class="export-png-btn" data-export-id="${id}" title="${t('export_png')}" aria-label="${label}">
       <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 15.5l-4.5-4.5 1.4-1.4L11 11.7V4h2v7.7l2.1-2.1 1.4 1.4L12 15.5zM5 18h14v2H5v-2z"/></svg>
+      <span class="export-png-btn__label">${label}</span>
     </button>
     <div class="export-target">${innerHtml}</div>
   </div>`;
@@ -1518,7 +1640,7 @@ const EDU_METRIC_DEFS = {
   litM: {label:['Literacy rate — male','সাক্ষরতার হার — পুরুষ'], get:r=>r.Total_lit_7plus_male, fmt:fmtPct, good:'high'},
   litF: {label:['Literacy rate — female','সাক্ষরতার হার — নারী'], get:r=>r.Total_lit_7plus_female, fmt:fmtPct, good:'high'},
   neet: {label:L.neet_rate, get:r=>r.Total_neet_total_total, fmt:fmtPct, good:'low'},
-  students: {label:L.currently_student, get:r=>(r.Total_student_total_male||0)+(r.Total_student_total_female||0), fmt:fmt},
+  students: {label:L.currently_student, get:r=>(r.Total_student_total_male||0)+(r.Total_student_total_female||0), fmt:fmt, getM:r=>r.Total_student_total_male||0, getF:r=>r.Total_student_total_female||0, genderKind:'count'},
 };
 
 /* ---------------------- Digital/Financial, WASH, Ethnicity theme joins ---------------------- */
@@ -1543,7 +1665,7 @@ const WASH_METRIC_DEFS = {
 };
 
 const ETH_METRIC_DEFS = {
-  total: {label:L.ethnic_population, get:r=>r.Total_ethnic_pop_total, fmt:fmt},
+  total: {label:L.ethnic_population, get:r=>r.Total_ethnic_pop_total, fmt:fmt, getM:r=>r.Total_ethnic_pop_male, getF:r=>r.Total_ethnic_pop_female, genderKind:'count'},
   male: {label:L.male, get:r=>r.Total_ethnic_pop_male, fmt:fmt},
   female: {label:L.female, get:r=>r.Total_ethnic_pop_female, fmt:fmt},
 };
@@ -1934,8 +2056,8 @@ function wireLabelToggle(container){
 
 /* ================= VIEW: Overview ================= */
 function renderOverview(){
-  const divRanked = BD_DATA.divisions.slice().sort((a,b)=>b.pop-a.pop);
-  const distRankedByChild = BD_DATA.districts.slice().sort((a,b)=>estimateC517(b)-estimateC517(a));
+  const divRanked = BD_DATA.divisions.slice().sort((a,b)=>METRIC_DEFS[STATE.mapMetric].get(b)-METRIC_DEFS[STATE.mapMetric].get(a));
+  const distRanked = BD_DATA.districts.slice().sort((a,b)=>METRIC_DEFS[STATE.mapMetric].get(b)-METRIC_DEFS[STATE.mapMetric].get(a));
 
   const distByIdForMap = f => IDX.distById.get(f.id);
   const divForDistrictFeature = f => { const d=IDX.distById.get(f.id); return d ? IDX.divById.get(d.divisionId) : null; };
@@ -1965,10 +2087,10 @@ function renderOverview(){
         <div id="mapHolder">${exportWrap(map.html, 'bd_census_map_districts', {type:'map', title:METRIC_DEFS[STATE.mapMetric].label[STATE.lang]+' — '+t('districts')})}</div>
       </div>
       <div class="card card--match-map">
-        <h2>${t('divisions')} <span class="sub">${t('top_by_pop')}</span></h2>
-        ${exportWrap(barChart(divRanked.map(d=>({label:dname(d), value:d.pop, __key:d.__key})), {}), 'bd_census_divisions_ranked', {type:'bar', rows:divRanked.map(d=>({label:dname(d), value:d.pop})), opts:{}, title:t('divisions')+' — '+t('top_by_pop')})}
-        <h2 class="section-gap">${t('districts_by_child_pop')}</h2>
-        <div class="scrollbox">${barChart(distRankedByChild.map(d=>({label:dname(d), value:estimateC517(d)})), {max:estimateC517(distRankedByChild[0]), formatter:fmt})}</div>
+        <h2>${t('divisions')} <span class="sub">${METRIC_DEFS[STATE.mapMetric].label[STATE.lang]}</span></h2>
+        ${exportWrap(themeRankedChartHTML(divRanked, dname, METRIC_DEFS[STATE.mapMetric], {}), 'bd_census_divisions_ranked_'+STATE.mapMetric, {type:'bar', rows:divRanked.map(d=>({label:dname(d), value:METRIC_DEFS[STATE.mapMetric].get(d)})), opts:{}, title:t('divisions')+' — '+METRIC_DEFS[STATE.mapMetric].label[STATE.lang]})}
+        <h2 class="section-gap">${t('districts')} <span class="sub">${METRIC_DEFS[STATE.mapMetric].label[STATE.lang]}</span></h2>
+        <div class="scrollbox">${exportWrap(themeRankedChartHTML(distRanked, dname, METRIC_DEFS[STATE.mapMetric], {}), 'bd_census_districts_ranked_'+STATE.mapMetric, {type:'bar', rows:distRanked.map(d=>({label:dname(d), value:METRIC_DEFS[STATE.mapMetric].get(d)})), opts:{}, title:t('districts')+' — '+METRIC_DEFS[STATE.mapMetric].label[STATE.lang]})}</div>
         <h2 class="section-gap-lg">${t('by_sex')} — ${t('national')}</h2>
         ${pieChart([
           {label:t('male'), value:NATIONAL.male, color:'var(--teal-700)'},
@@ -1997,7 +2119,8 @@ function renderOverview(){
       </div>
     </div>
 
-    <div class="source-strip">${t('source_note')} ${t('c517_caveat')} ${t('boundary_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('c517_caveat')} ${t('boundary_caveat')}</div>
+    <div class="source-strip">${t('source_note')}</div>
   `;
 }
 function wireOverview(container){
@@ -2021,6 +2144,8 @@ function renderDivisionList(){
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'avgHH', label:t('avg_hh_size'), num:true, render:r=>fmt1(r.avgHH)},
     {key:'sexRatio', label:t('sex_ratio'), num:true, render:r=>fmt1(r.sexRatio)},
@@ -2043,7 +2168,7 @@ function renderDivisionList(){
     showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
   const metricDef = METRIC_DEFS[STATE.mapMetric];
-  const chartRows = rows.map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows;
 
   return `
     <h1 class="pagetitle">${t('nav_division')}</h1>
@@ -2063,7 +2188,7 @@ function renderDivisionList(){
       </div>
       <div class="card">
         <h2>${t('divisions')} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-        ${exportWrap(barChart(chartRows, {formatter:metricDef.fmt}), 'bd_census_divisions_ranked_'+STATE.mapMetric, {type:'bar', rows:chartRows, opts:{formatter:metricDef.fmt}, title:t('divisions')+' — '+metricDef.label[STATE.lang]})}
+        ${exportWrap(themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt}), 'bd_census_divisions_ranked_'+STATE.mapMetric, {type:'bar', rows:chartRows.map(d=>({label:dname(d), value:metricDef.get(d)})), opts:{formatter:metricDef.fmt}, title:t('divisions')+' — '+metricDef.label[STATE.lang]})}
       </div>
     </div>
     <div class="card section-gap">
@@ -2096,6 +2221,8 @@ function renderDivisionDetail(id){
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'urbanPct', label:t('urban_share'), num:true, render:r=>{
         const cc=(r.urban['City Corporation']||0)+(r.urban['Paurashava']||0);
@@ -2168,6 +2295,8 @@ function renderDistrictList(){
     {key:'name', label:t('name'), render:r=>dname(r)},
     {key:'divisionId', label:t('division'), render:r=>dname(IDX.divById.get(r.divisionId)), raw:r=>IDX.divById.get(r.divisionId).name},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'avgHH', label:t('avg_hh_size'), num:true, render:r=>fmt1(r.avgHH)},
     {key:'u5', label:t('under5'), num:true},
@@ -2181,7 +2310,7 @@ function renderDistrictList(){
   const map = STATE.distListLevel==='district' ? buildMap('district', {getRecordForFeature:f=>IDX.distById.get(f.id), metric: STATE.mapMetric, showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues})
     : buildMap('division', {getRecordForFeature:f=>IDX.divById.get(f.id), metric: STATE.mapMetric, showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues});
   const metricDef = METRIC_DEFS[STATE.mapMetric];
-  const chartRows = rows.map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows;
   return `
     <h1 class="pagetitle">${t('nav_district')}</h1>
     <div class="pagetitle__meta">64 ${t('districts').toLowerCase()}</div>
@@ -2200,7 +2329,7 @@ function renderDistrictList(){
       </div>
       <div class="card card--match-map">
         <h2>${t('districts')} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-        <div class="scrollbox">${exportWrap(barChart(chartRows, {formatter:metricDef.fmt}), 'bd_census_districts_ranked_'+STATE.mapMetric, {type:'bar', rows:chartRows, opts:{formatter:metricDef.fmt}, title:t('districts')+' — '+metricDef.label[STATE.lang]})}</div>
+        <div class="scrollbox">${exportWrap(themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt}), 'bd_census_districts_ranked_'+STATE.mapMetric, {type:'bar', rows:chartRows.map(d=>({label:dname(d), value:metricDef.get(d)})), opts:{formatter:metricDef.fmt}, title:t('districts')+' — '+metricDef.label[STATE.lang]})}</div>
       </div>
     </div>
     <div class="card section-gap">
@@ -2231,10 +2360,13 @@ function renderDistrictDetail(id){
   if (!rec) return `<div class="empty">Not found</div>`;
   const div = IDX.divById.get(rec.divisionId);
   const upzs = (IDX.upzByDist.get(rec.id)||[]).slice().sort((a,b)=>b.pop-a.pop);
+  const upzRanked = upzs.slice().sort((a,b)=>METRIC_DEFS[STATE.mapMetric].get(b)-METRIC_DEFS[STATE.mapMetric].get(a));
   const cols = [
     {key:'name', label:t('name')},
     {key:'isCityCorp', label:t('area_type'), render:r=>r.isCityCorp?`<span class="tag urban">${t('citycorp')}</span>`:'', raw:r=>r.isCityCorp?r.cityCorp:''},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'u5', label:t('under5'), num:true},
     {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r)), raw:r=>estimateC517(r)},
@@ -2272,6 +2404,12 @@ function renderDistrictDetail(id){
         <div class="maptools">${Object.keys(METRIC_DEFS).map(k=>`<div class="pill ${STATE.mapMetric===k?'active':''}" data-metric="${k}">${METRIC_DEFS[k].label[STATE.lang]}</div>`).join('')}</div>
         <div id="mapHolder">${exportWrap(map.html, `bd_census_map_district_${rec.name.replace(/\s+/g,'_')}`, {type:'map', title:dname(rec)+' — '+METRIC_DEFS[STATE.mapMetric].label[STATE.lang]})}</div>
       </div>
+      <div class="card card--match-map">
+        <h2>${t('breakdown_by_upazila')} <span class="sub">${METRIC_DEFS[STATE.mapMetric].label[STATE.lang]}</span></h2>
+        <div class="scrollbox">${exportWrap(themeRankedChartHTML(upzRanked, dname, METRIC_DEFS[STATE.mapMetric], {}), `bd_census_upazilas_ranked_${rec.name.replace(/\s+/g,'_')}_${STATE.mapMetric}`, {type:'bar', rows:upzRanked.map(d=>({label:dname(d), value:METRIC_DEFS[STATE.mapMetric].get(d)})), opts:{}, title:dname(rec)+' — '+METRIC_DEFS[STATE.mapMetric].label[STATE.lang]})}</div>
+      </div>
+    </div>
+    <div class="grid grid-2 section-gap">
       <div class="card">
         <h2>${t('urban_rural_split')}</h2>
         ${exportWrap(urbanRuralBar(rec.urban, rec.pop), `bd_census_urbanrural_${rec.name.replace(/\s+/g,'_')}`, {type:'urbanrural', urbanObj:rec.urban, total:rec.pop, title:dname(rec)+' — '+t('urban_rural_split')})}
@@ -2283,7 +2421,8 @@ function renderDistrictDetail(id){
       ${cardHeader(`<h2>${t('breakdown_by_upazila')}</h2>`, 'distdet'+id, `bd_census_district_${rec.name.replace(/\s+/g,'_')}_upazilas.csv`)}
       ${dataTable(opts)}
     </div>
-    <div class="source-strip">${t('source_note')} ${t('boundary_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('boundary_caveat')}</div>
+    <div class="source-strip">${t('source_note')}</div>
   `;
 }
 function wireDistrictDetail(container, id){
@@ -2307,11 +2446,14 @@ function renderUpazilaDetail(id){
   if (!rec) return `<div class="empty">Not found</div>`;
   const dist = IDX.distById.get(rec.districtId);
   const uws = (IDX.uwByUpz.get(rec.id)||[]).slice().sort((a,b)=>b.pop-a.pop);
+  const uwRanked = uws.slice().sort((a,b)=>METRIC_DEFS[STATE.mapMetric].get(b)-METRIC_DEFS[STATE.mapMetric].get(a));
   const cols = [
     {key:'name', label:t('name')},
     {key:'type', label:t('type')},
     {key:'urban', label:t('area_type')},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'u5', label:t('under5'), num:true},
     {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r)), raw:r=>estimateC517(r)},
@@ -2326,6 +2468,11 @@ function renderUpazilaDetail(id){
     <h1 class="pagetitle">${rec.name}</h1>
     <div class="pagetitle__meta">${t('upazilas')} · ${dname(dist)} ${t('district').toLowerCase()} ${rec.isCityCorp?`· <span class="tag urban">${rec.cityCorp}</span>`:''}</div>
     ${statCards(rec)}
+    <div class="card section-gap">
+      <h2>${t('breakdown_by_union')} <span class="sub">${METRIC_DEFS[STATE.mapMetric].label[STATE.lang]}</span></h2>
+      <div class="maptools">${Object.keys(METRIC_DEFS).map(k=>`<div class="pill ${STATE.mapMetric===k?'active':''}" data-metric="${k}">${METRIC_DEFS[k].label[STATE.lang]}</div>`).join('')}</div>
+      <div class="scrollbox">${exportWrap(themeRankedChartHTML(uwRanked, r=>r.name, METRIC_DEFS[STATE.mapMetric], {}), `bd_census_unions_ranked_${rec.name.replace(/\s+/g,'_')}_${STATE.mapMetric}`, {type:'bar', rows:uwRanked.map(d=>({label:d.name, value:METRIC_DEFS[STATE.mapMetric].get(d)})), opts:{}, title:rec.name+' — '+METRIC_DEFS[STATE.mapMetric].label[STATE.lang]})}</div>
+    </div>
     <div class="grid grid-2 section-gap">
       <div class="card">
         <h2>${t('urban_rural_split')}</h2>
@@ -2345,6 +2492,9 @@ function renderUpazilaDetail(id){
 }
 function wireUpazilaDetail(container, id){
   wireCrumbs(container);
+  container.querySelectorAll('.maptools .pill').forEach(p=>{
+    p.addEventListener('click', ()=>{ STATE.mapMetric = p.dataset.metric; render(); });
+  });
   wireTable('tbl-upzdet', window.__tblOpts['upzdet'+id]);
 }
 
@@ -2356,6 +2506,8 @@ function renderCityCorpList(){
     {key:'name', label:t('name'), render:r=>dname(r)},
     {key:'district', label:t('district')},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'avgHH', label:t('avg_hh_size'), num:true, render:r=>fmt1(r.avgHH)},
     {key:'u5', label:t('under5'), num:true},
@@ -2385,6 +2537,8 @@ function renderCityCorpDetail(name){
   const cols = [
     {key:'name', label:t('name')},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'u5', label:t('under5'), num:true},
     {key:'geo', label:t('map_of'), render:r=>r.geo>=0?'✓':`<span style="color:var(--ink-soft)">${t('no_boundary')}</span>`, raw:r=>r.geo>=0?'Yes':'No'},
@@ -2429,7 +2583,8 @@ function renderCityCorpDetail(name){
       ${cardHeader(`<h2>${t('breakdown_by_upazila')} <span class="sub">(${constituents.length} thanas)</span></h2>`, 'ccdet'+name, `bd_census_citycorp_${rec.name.replace(/\s+/g,'_')}_thanas.csv`)}
       ${dataTable(opts)}
     </div>
-    <div class="source-strip">${t('source_note')} ${t('boundary_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('boundary_caveat')}</div>
+    <div class="source-strip">${t('source_note')}</div>
   `;
 }
 function wireCityCorpDetail(container, name){
@@ -2468,6 +2623,8 @@ function renderUnionExplorer(){
     {key:'upzName', label:t('upazilas')},
     {key:'distName', label:t('district')},
     {key:'pop', label:t('population'), num:true},
+    {key:'male', label:t('male'), num:true},
+    {key:'female', label:t('female'), num:true},
     {key:'hh', label:t('households'), num:true},
     {key:'u5', label:t('under5'), num:true},
     {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r)), raw:r=>estimateC517(r)},
@@ -2533,8 +2690,20 @@ function estimateC517(r){
   return (r.age[0]||0) + (r.age[1]||0) + (r.age[2]||0) + (r.age[3]||0)*0.6;
 }
 const AGE_METRIC_DEFS = {};
-AGE_BAND_LABELS.forEach((label,i)=>{ AGE_METRIC_DEFS['band'+i] = {label:[label+' '+L.years[0], label+' '+L.years[1]], get:r=>r.age[i]||0, fmt:fmt}; });
-AGE_METRIC_DEFS.c517 = {label:L.c517, get:estimateC517, fmt:fmt};
+// Age-band totals aren't tabulated by sex in the source (same limitation noted on the age & sex
+// pyramid) — getM/getF estimate the split proportionally from each area's own overall sex ratio,
+// and `estimated:true` makes the chart label this clearly rather than implying real tabulation.
+const ageEstM = r=>r.male/(r.male+r.female);
+AGE_BAND_LABELS.forEach((label,i)=>{
+  AGE_METRIC_DEFS['band'+i] = {
+    label:[label+' '+L.years[0], label+' '+L.years[1]], get:r=>r.age[i]||0, fmt:fmt, genderKind:'count', estimated:true,
+    getM:r=>(r.age[i]||0)*ageEstM(r), getF:r=>(r.age[i]||0)*(1-ageEstM(r)),
+  };
+});
+AGE_METRIC_DEFS.c517 = {
+  label:L.c517, get:estimateC517, fmt:fmt, genderKind:'count', estimated:true,
+  getM:r=>estimateC517(r)*ageEstM(r), getF:r=>estimateC517(r)*(1-ageEstM(r)),
+};
 
 function renderAgeDemographics(){
   const drill = themeDrillFromRoute(STATE.route);
@@ -2565,11 +2734,13 @@ function renderAgeDemographics(){
     metric: STATE.ageMetric, metricDefs: AGE_METRIC_DEFS,
     showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
-  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a));
 
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
     {key:'pop', label:t('population'), num:true, render:r=>fmt(r.pop)},
+    {key:'male', label:t('male'), num:true, render:r=>fmt(r.male)},
+    {key:'female', label:t('female'), num:true, render:r=>fmt(r.female)},
     ...AGE_BAND_LABELS.map((label,i)=>({key:'band'+i, label:label+' '+t('years'), num:true, render:r=>fmt(r.age[i]||0)})),
     {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r))},
   ];
@@ -2613,7 +2784,7 @@ function renderAgeDemographics(){
       </div>
       ${themeBreadcrumbHTML(drill, 'nav_age')}
       <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-      ${barChart(chartRows, {formatter:metricDef.fmt})}
+      ${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}
     </div>` : `
     <div class="grid grid-2 section-gap">
       <div class="card">
@@ -2630,7 +2801,7 @@ function renderAgeDemographics(){
       </div>
       <div class="card card--match-map">
         <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-        <div class="scrollbox">${barChart(chartRows, {formatter:metricDef.fmt})}</div>
+        <div class="scrollbox">${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}</div>
       </div>
     </div>`}
     <div class="card section-gap">
@@ -2639,6 +2810,8 @@ function renderAgeDemographics(){
     </div>
     ${drill.upazila!=null ? themeUnionTableHTML(drill.upazila, cfg, 'ageunion', 'bd_census_age_by_union.csv', [
         {key:'pop', label:t('population'), num:true, render:r=>fmt(r.pop)},
+        {key:'male', label:t('male'), num:true, render:r=>fmt(r.male)},
+        {key:'female', label:t('female'), num:true, render:r=>fmt(r.female)},
         {key:'band0', label:t('under5'), num:true, render:r=>fmt(r.age[0]||0)},
         {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r))},
       ]) : ''}
@@ -2646,7 +2819,7 @@ function renderAgeDemographics(){
       ${cardHeader(`<h2>${t('nav_age')} <span class="sub">${levelLabel}</span></h2>`, 'agelist', 'bd_census_age_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(opts)}
     </div>
-    <div class="footnote">${t('c517_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('c517_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
@@ -2749,7 +2922,7 @@ function renderSDG(){
       ${cardHeader(`<h2>${t('sdg_all_indicators')} ${levelLabel.toLowerCase()}</h2>`, 'sdglist', 'bd_census_sdg_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(opts)}
     </div>
-    <div class="footnote">${t('sdg_caveat')} ${t('redgreen_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('sdg_caveat')} ${t('redgreen_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
@@ -2800,7 +2973,7 @@ function renderEducation(){
     metric: STATE.eduMetric, metricDefs: EDU_METRIC_DEFS,
     showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
-  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a));
 
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
@@ -2854,7 +3027,7 @@ function renderEducation(){
       <div class="maptools">${Object.keys(EDU_METRIC_DEFS).map(k=>`<div class="pill ${STATE.eduMetric===k?'active':''}" data-edumetric="${k}">${EDU_METRIC_DEFS[k].label[STATE.lang]}</div>`).join('')}</div>
       ${themeBreadcrumbHTML(drill, 'nav_education')}
       <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-      ${barChart(chartRows, {formatter:metricDef.fmt})}
+      ${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}
     </div>` : `
     <div class="grid grid-2 section-gap">
       <div class="card">
@@ -2868,7 +3041,7 @@ function renderEducation(){
       </div>
       <div class="card card--match-map">
         <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-        <div class="scrollbox">${barChart(chartRows, {formatter:metricDef.fmt})}</div>
+        <div class="scrollbox">${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}</div>
       </div>
     </div>`}
     ${drill.upazila!=null ? themeUnionTableHTML(drill.upazila, cfg, 'eduunion', 'bd_census_education_by_union.csv') : ''}
@@ -2880,7 +3053,7 @@ function renderEducation(){
       ${cardHeader(`<h2>${t('nav_education')} <span class="sub">${levelLabel}</span></h2>`, 'edulist', 'bd_census_education_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(opts)}
     </div>
-    <div class="footnote">${t('sdg_caveat')} ${t('coxsbazar_caveat')} ${t('redgreen_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('sdg_caveat')} ${t('coxsbazar_caveat')} ${t('redgreen_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
@@ -2931,7 +3104,7 @@ function renderDigital(){
     metric: STATE.digitalMetric, metricDefs: DIGITAL_METRIC_DEFS,
     showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
-  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows.slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a));
 
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
@@ -2962,7 +3135,7 @@ function renderDigital(){
       <div class="maptools">${Object.keys(DIGITAL_METRIC_DEFS).map(k=>`<div class="pill ${STATE.digitalMetric===k?'active':''}" data-digitalmetric="${k}">${DIGITAL_METRIC_DEFS[k].label[STATE.lang]}</div>`).join('')}</div>
       ${themeBreadcrumbHTML(drill, 'nav_digital')}
       <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-      ${barChart(chartRows, {formatter:metricDef.fmt})}
+      ${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}
     </div>` : `
     <div class="grid grid-2 section-gap">
       <div class="card">
@@ -2976,7 +3149,7 @@ function renderDigital(){
       </div>
       <div class="card card--match-map">
         <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]}</span></h2>
-        <div class="scrollbox">${barChart(chartRows, {formatter:metricDef.fmt})}</div>
+        <div class="scrollbox">${themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt})}</div>
       </div>
     </div>`}
     ${drill.upazila!=null ? themeUnionTableHTML(drill.upazila, cfg, 'digitalunion', 'bd_census_digital_financial_by_union.csv') : ''}
@@ -2984,7 +3157,7 @@ function renderDigital(){
       ${cardHeader(`<h2>${t('nav_digital')} <span class="sub">${levelLabel}</span></h2>`, 'digitallist', 'bd_census_digital_financial_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(opts)}
     </div>
-    <div class="footnote">${t('digital_caveat')} ${t('redgreen_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('digital_caveat')} ${t('redgreen_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
@@ -3135,7 +3308,7 @@ function renderWash(){
       ${cardHeader(`<h2>${t('toilet_facility')} <span class="sub">${levelLabel}</span></h2>`, 'washtoilet', 'bd_census_toilet_facility_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(topts)}
     </div>
-    <div class="footnote">${t('wash_caveat')} ${t('redgreen_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('wash_caveat')} ${t('redgreen_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
@@ -3192,7 +3365,7 @@ function renderEthnicity(){
     metric: STATE.ethMetric, metricDefs: ETH_METRIC_DEFS,
     showLabels: STATE.mapLabels, showValueLabels: STATE.mapLabelValues,
   });
-  const chartRows = rows.filter(d=>d.Total_ethnic_pop_total>0).slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).slice(0,topN).map(d=>({label:dname(d), value:metricDef.get(d), __key:d.__key}));
+  const chartRows = rows.filter(d=>d.Total_ethnic_pop_total>0).slice().sort((a,b)=>metricDef.get(b)-metricDef.get(a)).slice(0,topN);
 
   const cols = [
     {key:'name', label:t('name'), render:r=>dname(r)},
@@ -3222,7 +3395,7 @@ function renderEthnicity(){
       <div class="maptools">${Object.keys(ETH_METRIC_DEFS).map(k=>`<div class="pill ${STATE.ethMetric===k?'active':''}" data-ethmetric="${k}">${ETH_METRIC_DEFS[k].label[STATE.lang]}</div>`).join('')}</div>
       ${themeBreadcrumbHTML(drill, 'nav_ethnicity')}
       <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]} (${t('top10').toLowerCase()})</span></h2>
-      ${chartRows.length ? barChart(chartRows, {formatter:metricDef.fmt}) : `<div class="empty">—</div>`}
+      ${chartRows.length ? themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt}) : `<div class="empty">—</div>`}
     </div>` : `
     <div class="grid grid-2 section-gap">
       <div class="card">
@@ -3236,7 +3409,7 @@ function renderEthnicity(){
       </div>
       <div class="card">
         <h2>${rankedByLabel(themeRankedLevel(drill, mapCfg.level))} <span class="sub">${metricDef.label[STATE.lang]} (${t('top10').toLowerCase()})</span></h2>
-        ${chartRows.length ? barChart(chartRows, {formatter:metricDef.fmt}) : `<div class="empty">—</div>`}
+        ${chartRows.length ? themeRankedChartHTML(chartRows, dname, metricDef, {formatter:metricDef.fmt}) : `<div class="empty">—</div>`}
       </div>
     </div>`}
     ${drill.upazila!=null ? themeUnionTableHTML(drill.upazila, cfg, 'ethunion', 'bd_census_ethnicity_by_union.csv') : ''}
@@ -3244,7 +3417,7 @@ function renderEthnicity(){
       ${cardHeader(`<h2>${t('nav_ethnicity')} <span class="sub">${levelLabel}</span></h2>`, 'ethlist', 'bd_census_ethnicity_by_'+slugLabel(levelLabel)+'.csv')}
       ${dataTable(opts)}
     </div>
-    <div class="footnote">${t('ethnicity_caveat')}</div>
+    <div class="footnote"><b>${t('notes_label')}:</b> ${t('ethnicity_caveat')}</div>
     <div class="source-strip">${t('source_note')}</div>
   `;
 }
