@@ -1960,7 +1960,7 @@ function themeUnionTableHTML(upazilaId, cfg, tblKey, csvBase, extraCols){
   const rows = (cfg.unionsByUpz.get(upazilaId)||[]).map(withUnionName);
   const cols = [
     {key:'name', label:t('name')},
-    ...(extraCols||Object.keys(cfg.metricDefs).map(k=>({key:k, label:cfg.metricDefs[k].label[STATE.lang], num:true, render:r=>cfg.metricDefs[k].fmt(cfg.metricDefs[k].get(r))}))),
+    ...(extraCols||Object.keys(cfg.metricDefs).map(k=>({key:k, label:cfg.metricDefs[k].label[STATE.lang], num:true, render:r=>cfg.metricDefs[k].fmt(cfg.metricDefs[k].get(r)), raw:r=>cfg.metricDefs[k].get(r)}))),
   ];
   window.__tblOpts = window.__tblOpts||{};
   const opts = window.__tblOpts[tblKey] = window.__tblOpts[tblKey] || {defaultSort:cols[1] ? cols[1].key : 'name'};
@@ -2675,7 +2675,7 @@ function wireUnionExplorer(container){
   $('#explClear').addEventListener('click', ()=>{ Object.assign(explorerState, {q:'',divId:'',distId:'',upzId:'',urban:''}); render(); });
   $('#explExport').addEventListener('click', ()=>{
     const opts = window.__tblOpts.explorer;
-    const csv = toCSV(opts.columns.map(c=>({key:c.key, label:c.label})), opts._fullRows);
+    const csv = toCSV(opts.columns, opts._fullRows);
     downloadCSV('union_ward_explorer.csv', csv);
   });
 }
@@ -2741,8 +2741,8 @@ function renderAgeDemographics(){
     {key:'pop', label:t('population'), num:true, render:r=>fmt(r.pop)},
     {key:'male', label:t('male'), num:true, render:r=>fmt(r.male)},
     {key:'female', label:t('female'), num:true, render:r=>fmt(r.female)},
-    ...AGE_BAND_LABELS.map((label,i)=>({key:'band'+i, label:label+' '+t('years'), num:true, render:r=>fmt(r.age[i]||0)})),
-    {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r))},
+    ...AGE_BAND_LABELS.map((label,i)=>({key:'band'+i, label:label+' '+t('years'), num:true, render:r=>fmt(r.age[i]||0), raw:r=>r.age[i]||0})),
+    {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r)), raw:r=>estimateC517(r)},
   ];
   window.__tblOpts = window.__tblOpts||{};
   const opts = window.__tblOpts.agelist = window.__tblOpts.agelist || {defaultSort:'pop'};
@@ -2812,8 +2812,8 @@ function renderAgeDemographics(){
         {key:'pop', label:t('population'), num:true, render:r=>fmt(r.pop)},
         {key:'male', label:t('male'), num:true, render:r=>fmt(r.male)},
         {key:'female', label:t('female'), num:true, render:r=>fmt(r.female)},
-        {key:'band0', label:t('under5'), num:true, render:r=>fmt(r.age[0]||0)},
-        {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r))},
+        {key:'band0', label:t('under5'), num:true, render:r=>fmt(r.age[0]||0), raw:r=>r.age[0]||0},
+        {key:'c517', label:t('c517'), num:true, render:r=>fmt(estimateC517(r)), raw:r=>estimateC517(r)},
       ]) : ''}
     <div class="card section-gap">
       ${cardHeader(`<h2>${t('nav_age')} <span class="sub">${levelLabel}</span></h2>`, 'agelist', 'bd_census_age_by_'+slugLabel(levelLabel)+'.csv')}
